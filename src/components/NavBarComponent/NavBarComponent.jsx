@@ -1,7 +1,22 @@
 import { NavLink } from "react-router-dom";
 import "./NavBarComponent.css";
 
-const NavBarComponent = () => {
+import React, { useState } from "react";
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Badge,
+  MenuItem,
+  Menu,
+  Typography,
+} from "@material-ui/core";
+import { ShoppingCart } from "@material-ui/icons";
+import { Link, useLocation } from "react-router-dom";
+import useStyles from "./styels";
+
+const NavBarComponent = ({ totalItems }) => {
+  const classes = useStyles();
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light ">
       <div className="container-fluid ">
@@ -35,10 +50,10 @@ const NavBarComponent = () => {
               <NavLink
                 className="nav-link"
                 aria-current="page"
-                to="/cardspanel"
+                to="/Commerce"
                 activeClassName="activeLink"
               >
-                Cards Panel
+                Store
               </NavLink>
             </li>
             <li className="nav-item">
@@ -63,6 +78,16 @@ const NavBarComponent = () => {
             </li>
           </ul>
         </div>
+        <Toolbar>
+          <div className={classes.grow}></div>
+          <div className={classes.button}>
+            <IconButton aria-label="Show cart item" color="inherit">
+              <Badge badgeContent={totalItems} color="secondary">
+                <ShoppingCart />
+              </Badge>
+            </IconButton>
+          </div>
+        </Toolbar>
       </div>
     </nav>
   );

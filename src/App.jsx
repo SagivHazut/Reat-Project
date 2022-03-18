@@ -2,43 +2,61 @@ import { Route, Switch, Redirect } from "react-router-dom";
 import "./App.css";
 import AuthGuardRoute from "./components/AuthGuardRoute";
 import NavBarComponent from "./components/NavBarComponent/NavBarComponent";
-import CardsPanelPage from "./pages/CardsPanelPage";
 import HomePage from "./pages/HomePage/HomePage";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import SignupPage from "./pages/LoginPage/SignupPage";
-import CardInfoPage from "./pages/CardInfoPage";
 import Footer from "./pages/Footer/FooterComponent";
+import Commerce from "./Commerce";
+import { commerce } from "./lib/commerce";
+import Cart from "./E-commerce/Cart/Cart";
+import Products from "./E-commerce/Products";
+import React, { useState, useEffect } from "react";
+
+// https://www.youtube.com/watch?v=377AQ0y6LPA
+
 function App() {
+  const [products, setProduct] = useState([]);
+  const [cart, setCart] = useState({});
+
+  const fetchProducts = async () => {
+    const { data } = await commerce.products.list();
+    setProduct(data);
+  };
+
+  const fetchCart = async () => {
+    setCart(await commerce.cart.retrieve());
+  };
+
+  const handleAddToCart = async (productId, quantity) => {
+    const item = await commerce.cart.add(productId, quantity);
+
+    setCart(item.cart);
+  };
+  useEffect(() => {
+    fetchProducts();
+    fetchCart();
+  }, []);
   return (
     <div>
-      <NavBarComponent></NavBarComponent>
+      <NavBarComponent totalItems={cart.total_items} />
       <Switch>
-        {/* http://localhost:3000/ */}
         <Route path="/" exact>
           <Redirect to="/home" />
         </Route>
-        {/* http://localhost:3000/home */}
-        {/* <Route path="/home">
-          <HomePage />
-        </Route> */}
         <Route path="/home" component={HomePage} />
-        {/* http://localhost:3000/login */}
-        {/* <Route path="/login">
-          <LoginPage />
-        </Route> */}
+        <AuthGuardRoute path="/cart" component={Cart} />
+
         <Route path="/login" component={LoginPage} />
-        {/* http://localhost:3000/signup */}
         <Route path="/signup" component={SignupPage} />
-        {/* http://localhost:3000/cardspanel */}
-        {/* <Route path="/cardspanel">
-          <CardsPanelPage />
-        </Route> */}
-        <AuthGuardRoute path="/cardspanel" component={CardsPanelPage} />
-        <AuthGuardRoute path="/card/:id" component={CardInfoPage} />
-        {/* <Route path="*">
-          <NotFoundPage />
-        </Route> */}
+        <Route
+          path="/commerce"
+          component={Commerce}
+          onAddToCart={handleAddToCart}
+        >
+          <Products products={products} onAddToCart={handleAddToCart} />
+        </Route>
+
         <Route path="*" component={NotFoundPage} />
       </Switch>
       <Footer></Footer>
